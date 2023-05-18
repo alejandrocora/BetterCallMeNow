@@ -7,7 +7,7 @@ Better Call Me Now! is an automated program to request phone calls from (most) o
 ## Help
 
 ```
-usage: app.py [-h] --url_file URL_FILE phones [phones ...]
+usage: callme [-h] --url_file URL_FILE phones [phones ...]
 
 positional arguments:
   phones               A list of one or more phone numbers, separated by spaces.
