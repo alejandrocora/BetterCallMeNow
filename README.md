@@ -4,6 +4,14 @@
 
 Better Call Me Now! is an automated program to request phone calls from (most) of websites that allow this option, usually related to insurance or TSP companies.
 
+It can be used to measure the quality of customer service websites, speed up contact with multiple clients or services, or test the viability of a phone line, among other uses.
+
+## Installation
+
+`$ git clone https://github.com/alejandrocora/BetterCallMeNow`  
+`$ cd BetterCallMeNow`  
+`$ pip3 install .`
+
 ## Help
 
 ```
