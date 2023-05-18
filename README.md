@@ -28,3 +28,5 @@ options:
 ### Disclaimer
 
 This program is meant to be used with non-malicious intent, with the consent of the phone numbers owners/users.
+
+The URL file should be obtained/made by the user.
