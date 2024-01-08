@@ -3,10 +3,14 @@ import urllib
 from bs4 import BeautifulSoup
 import datetime
 
-from callme.constants import *
+from callme.utils.constants import *
 
 
 class CommonCallSubmit:
+
+    timeout = 30
+    verbose = False
+
     def get_form_parameters(soup, parsed_url):
         forms = soup.find_all('form')
         form = False
@@ -42,11 +46,16 @@ class CommonCallSubmit:
         return input_parameters
 
     def set_phone_parameter(form_data, phone_number): # perhaps include this in set_commom_parameters?
+        has_phone = False
         for key in form_data.keys():
             if key:
                 if any(param_name in key.lower() for param_name in COMMON_PHONE_PARAMETERS):
                     form_data[key] = phone_number
-        return form_data
+                    has_phone = True
+        if has_phone:
+            return form_data
+        else:
+            return 1
 
     def set_common_parameters(form_data): # maybe fill with something random every one that has text in it?
         COMMON_PAYLOAD['hour'] = str(datetime.datetime.now().hour+1)+':00'
@@ -65,7 +74,7 @@ class CommonCallSubmit:
             'User-agent':DEFAULT_HEADER
         })
         try:
-            html = session.get(url).text
+            html = session.get(url, timeout=CommonCallSubmit.timeout).text
         except requests.exceptions.MissingSchema:
             return 0
         parsed_url = urllib.parse.urlparse(url, scheme='', allow_fragments=True)
@@ -73,6 +82,8 @@ class CommonCallSubmit:
         if (not form_parameters) or (not form_parameters[1]): 
             form_parameters = [{'method':'post', 'action':url}, CommonCallSubmit.get_inputs(BeautifulSoup(html, 'html.parser'))]
         pet_data = CommonCallSubmit.set_phone_parameter(form_parameters[1], phone_number) # pet is short for petition, maybe find a more suitable name
+        if pet_data == 1:
+            return 1
         pet_data = CommonCallSubmit.set_common_parameters(pet_data)
         if form_parameters[0]['action']:
             if urllib.parse.urlparse(form_parameters[0]['action'], scheme='', allow_fragments=True).scheme:
@@ -86,8 +97,15 @@ class CommonCallSubmit:
                     action = url+'/'+form_parameters[0]['action']
         else:
             action = url
+        if CommonCallSubmit.verbose == True:
+            print('[i] Request URL ->           ' + action)
+            if form_parameters[0]['method'] == 'get':
+                print('[i] Request method ->        GET')
+            else:
+                print('[i] Request method ->        POST')
+            print('[i] Request parameters ->    ' + str(pet_data))
         if form_parameters[0]['method'] == 'get':
             query = '?'+urllib.parse.urlencode(pet_data, doseq=False, safe='', encoding=None, errors=None)
-            return session.get(action+query).status_code
+            return session.get(action+query, timeout=CommonCallSubmit.timeout).status_code
         else:
-            return session.post(action, pet_data).status_code
+            return session.post(action, pet_data, timeout=CommonCallSubmit.timeout).status_code
